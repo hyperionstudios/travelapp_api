@@ -2,41 +2,85 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\TripResource;
+use App\Http\Resources\TripsResource;
+use App\Place;
+use App\Trip;
+use http\Client\Curl\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use PhpParser\Node\Expr\Cast\Double;
 
 class TripController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return TripsResource
      */
-    public function index()
+    public function index( Request $request )
     {
-        //
+        $user = $request->user();
+        $trips = $user->trips;
+        return new TripsResource( $trips );
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return TripResource
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'booking_date'  => 'required',
+            'payment_status'    => 'required',
+            'trip_days' => 'required',
+            'trip_date' => 'required',
+            'place_id'  => 'required',
+        ]);
+
+        $user = $request->user();
+        $trip = new Trip();
+        $place = Place::find($request->get( 'place_id' ));
+        $trip->user_id  = $user->id;
+        $trip->place_id = $place->id;
+
+        $cost = $place->cost;
+        $finalCost = doubleval( $cost ) * intval( $request->get( 'trip_days' ) );
+        $trip->final_cost = $finalCost;
+
+        if( $request->has('payment_reference') ){
+            $trip->payment_reference = $request->get( 'payment_reference' );
+        }
+        if( $request->has('paid_date') ){
+            $trip->paid_date = $request->get( 'paid_date' );
+        }
+
+        $trip->booking_date = $request->get( 'booking_date' );
+        $trip->payment_status = $request->get( 'payment_status' );
+        $trip->trip_days = $request->get( 'trip_days' );
+        $trip->trip_date = $request->get( 'trip_date' );
+        $trip->save();
+        return new TripResource( $trip );
     }
 
+
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $id
+     * @return TripResource|array
      */
-    public function show($id)
+    public function show( Request $request , $id)
     {
-        //
+        $user = $request->user();
+        $trip = Trip::find( $id );
+        if( $user->id != $trip->user_id ){
+            return [
+                'error' => true,
+                'message'   => 'user does not own the trip'
+            ];
+        }
+        return new TripResource( $trip );
     }
 
     /**
