@@ -21,8 +21,9 @@ Route::middleware('auth:api')->group( function(){
     Route::post( 'update-user/{id}' , 'Api\UserController@update' );
 
     Route::post( 'trips' , 'Api\TripController@store' );
-
     Route::get( 'trips' , 'Api\TripController@index' );
     Route::get( 'trips/{id}' , 'Api\TripController@show' );
+
+    Route::post( 'trips/review/{id}' , 'Api\ReviewController@store' );
 
 } );

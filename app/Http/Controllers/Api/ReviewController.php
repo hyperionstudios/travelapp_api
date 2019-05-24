@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\ReviewResource;
+use App\Review;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -18,14 +21,25 @@ class ReviewController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return ReviewResource
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'content'   => 'required',
+            'rating'    => 'required',
+            'place_id'  => 'required'
+        ]);
+        $user = $request->user();
+        $review = new Review();
+        $review->content = $request->get( 'content' );
+        $review->written_date = Carbon::now()->format('Y-m-d H:i:s');
+        $review->rating = intval( $request->get( 'rating' ) );
+        $review->user_id = $user->id;
+        $review->place_id = $request->get( 'place_id' );
+        $review->save();
+        return new ReviewResource( $review );
     }
 
     /**
