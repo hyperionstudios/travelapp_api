@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\PlaceResource;
+use App\Http\Resources\PlacesResource;
+use App\Http\Resources\ReviewsResource;
+use App\Place;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Prophecy\Doubler\LazyDouble;
 
 class PlaceController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @return PlacesResource
      */
     public function index()
     {
-        //
+        return new PlacesResource( Place::paginate( env('PLACE_PER_PAGE') ) );
     }
 
     /**
@@ -29,14 +32,12 @@ class PlaceController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $id
+     * @return PlaceResource
      */
     public function show($id)
     {
-        //
+        return new PlaceResource( Place::find( $id ) );
     }
 
     /**
@@ -60,5 +61,14 @@ class PlaceController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @param $id
+     * @return ReviewsResource
+     */
+    public function reviews( $id ){
+        $place = Place::find( $id );
+        return new ReviewsResource( $place->reviews()->paginate( env('REVIEW_PER_PAGE') ) );
     }
 }

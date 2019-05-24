@@ -9,4 +9,8 @@ class Destination extends Model
     protected $fillable = [
         'title' , 'featured_image'
     ];
+
+    public function places(){
+        return $this->hasMany( Place::class );
+    }
 }
