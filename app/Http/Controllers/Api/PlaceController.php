@@ -17,7 +17,7 @@ class PlaceController extends Controller
      */
     public function index()
     {
-        return new PlacesResource( Place::paginate( env('PLACE_PER_PAGE') ) );
+        return new PlacesResource( Place::with(['images'])->paginate( env('PLACE_PER_PAGE') ) );
     }
 
     /**
@@ -37,7 +37,7 @@ class PlaceController extends Controller
      */
     public function show($id)
     {
-        return new PlaceResource( Place::find( $id ) );
+        return new PlaceResource( Place::with(['images'])->where( 'id' , $id )->get() );
     }
 
     /**
