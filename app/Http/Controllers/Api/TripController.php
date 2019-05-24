@@ -31,6 +31,26 @@ class TripController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user();
+        if( $user->age == null ){
+           $request->validate([
+               'age'    => 'required',
+           ]);
+           $user->age = $request->get( 'age' );
+        }
+        if( $user->address == null ){
+            $request->validate([
+                'address'   => 'required',
+            ]);
+            $user->address = $request->get( 'address' );
+        }
+        if( $user->phone == null ){
+            $request->validate([
+                'phone' => 'required'
+            ]);
+            $user->phone = $request->get( 'phone' );
+        }
+
         $request->validate([
             'booking_date'  => 'required',
             'payment_status'    => 'required',
@@ -60,6 +80,7 @@ class TripController extends Controller
         $trip->payment_status = $request->get( 'payment_status' );
         $trip->trip_days = $request->get( 'trip_days' );
         $trip->trip_date = $request->get( 'trip_date' );
+        $user->save();
         $trip->save();
         return new TripResource( $trip );
     }

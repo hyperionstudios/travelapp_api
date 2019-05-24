@@ -72,6 +72,17 @@ class UserController extends Controller
             );
             $user->avatar = url('/') . '/images/' .$filename;
         }
+        if( $request->has( 'age' ) ){
+            $user->age = $request->get( 'age' );
+        }
+
+        if( $request->has( 'address' ) ){
+            $user->address = $request->get( 'address' );
+        }
+
+        if( $request->has( 'phone' ) ){
+            $user->phone = $request->get( 'phone' );
+        }
 
         $user->save();
         return new UserResource( $user );
